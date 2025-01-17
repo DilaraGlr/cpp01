@@ -1,23 +1,49 @@
-NAME = humans
 
-CXX = c++
-CXXFLAGS = -Wall -Wextra -Werror -std=c++98
+NAME 			= weapon
 
-SRCS = main.cpp Weapon.cpp HumanA.cpp HumanB.cpp
+CC				= c++
+CFLAGS 			= -Wall -Wextra -Werror -std=c++98
+RM				= rm -rf
 
-OBJS = $(SRCS:.cpp=.o)
+OBJ_PATH		= objects
+
+HEADERS			= $(addsuffix .hpp, \
+					HumanA \
+					HumanB \
+					Weapon \
+					)
+
+SRCS 			= $(addsuffix .cpp, \
+					main \
+					HumanA \
+					HumanB \
+					Weapon \
+					)
+
+OBJS			=	$(SRCS:%.cpp=$(OBJ_PATH)/%.o)
+
+DEPS			=	$(OBJS:.o=.d)
+
+#--------------------RULES---------------------
 
 all: $(NAME)
 
-$(NAME): $(OBJS)
-	$(CXX) $(CXXFLAGS) -o $(NAME) $(OBJS)
+$(NAME): $(OBJS) $(HEADERS)
+	$(CC) $(CFLAGS) $(OBJS) -o $(NAME)
+
+
+$(OBJ_PATH)/%.o: %.cpp $(HEADERS)
+			mkdir -p $(dir $@)
+			$(CC) $(CFLAGS) -c $< -o $@
 
 clean:
-	rm -f $(OBJS)
+	$(RM) $(OBJ_PATH)
 
 fclean: clean
-	rm -f $(NAME)
+	$(RM) $(NAME)
 
 re: fclean all
+
+-include $(DEPS)
 
 .PHONY: all clean fclean re

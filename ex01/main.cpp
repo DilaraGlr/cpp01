@@ -2,7 +2,7 @@
 
 int main()
 {
-    int N = 5; // Nombre de zombies
+    int N = 5; 
     std::string name = "ZombieName";
 
     // Création d'une horde de zombies

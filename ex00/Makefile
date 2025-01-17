@@ -1,20 +1,47 @@
-NAME = zombie
 
-CXX = c++
-CXXFLAGS = -Wall -Wextra -Werror -std=c++98
+NAME 			= Brainz
 
-SRCS = main.cpp Zombie.cpp newZombie.cpp randomChump.cpp
-OBJS = $(SRCS:.cpp=.o)
+CC				= c++
+CFLAGS 			= -Wall -Wextra -Werror -std=c++98
+RM				= rm -rf
+
+OBJ_PATH		= objects
+
+HEADERS			= $(addsuffix .hpp, \
+					Zombie \
+					)
+
+SRCS 			= $(addsuffix .cpp, \
+					main \
+					Zombie \
+					newZombie \
+					randomChump \
+					)
+
+OBJS			=	$(SRCS:%.cpp=$(OBJ_PATH)/%.o)
+
+DEPS			=	$(OBJS:.o=.d)
+
+#--------------------RULES---------------------
 
 all: $(NAME)
 
-$(NAME): $(OBJS)
-	$(CXX) $(CXXFLAGS) -o $(NAME) $(OBJS)
+$(NAME): $(OBJS) $(HEADERS)
+	$(CC) $(CFLAGS) $(OBJS) -o $(NAME)
+
+
+$(OBJ_PATH)/%.o: %.cpp $(HEADERS)
+			mkdir -p $(dir $@)
+			$(CC) $(CFLAGS) -c $< -o $@
 
 clean:
-	rm -f $(OBJS)
+	$(RM) $(OBJ_PATH)
 
 fclean: clean
-	rm -f $(NAME)
+	$(RM) $(NAME)
 
 re: fclean all
+
+-include $(DEPS)
+
+.PHONY: all clean fclean re

@@ -1,70 +1,46 @@
 #include <iostream>
 #include <fstream>
 #include <string>
+#include <cstring>
 
-bool replaceInFile(const std::string &filename, const std::string &s1, const std::string &s2) 
+int main(int ac, char **av)
 {
-    // Vérification des chaînes vides
-    if (s1.empty() || s2.empty()) 
-    {
-        std::cerr << "Error: s1 and s2 cannot be empty." << std::endl;
-        return false;
-    }
+	std::fstream	fs;
+	int				pos;
+	size_t			word_len;
+	std::string		buffer;
 
-    // Ouvrir le fichier source en lecture
-    std::ifstream inputFile(filename.c_str());
-    if (!inputFile.is_open()) 
-    {
-        std::cerr << "Error: Could not open the file " << filename << std::endl;
-        return false;
-    }
+	if (ac != 4 || !*av[2])
+	{
+		std::cout << "Error: arguments" << std::endl;
+		return (1);
+	}
 
-    // Créer le fichier de sortie
-    std::ofstream outputFile((filename + ".replace").c_str());
-    if (!outputFile.is_open()) 
-    {
-        std::cerr << "Error: Could not create the output file " << filename << ".replace" << std::endl;
-        inputFile.close();
-        return false;
-    }
-
-    std::string line;
-    while (std::getline(inputFile, line)) 
-    {
-        size_t pos = 0;
-        // Remplacer toutes les occurrences de s1 par s2 dans la ligne
-        while ((pos = line.find(s1, pos)) != std::string::npos) 
-        {
-            line.replace(pos, s1.length(), s2);
-            pos += s2.length(); // Avancer la position après le remplacement
-        }
-        outputFile << line << std::endl;
-    }
-
-    // Fermer les fichiers
-    inputFile.close();
-    outputFile.close();
-    return true;
+	word_len = std::strlen(av[2]);
+	fs.open(av[1], std::fstream::in | std::fstream::out);
+	if (fs.fail())
+		return (std::cout << "Error: file" << std::endl, 1);
+    
+    std::ofstream outfile((std::string(av[1]) + ".replace").c_str());
+	if (outfile.fail())
+		return (std::cout << "Error : failed to created new file" << std::endl, 1);
+	
+    while (std::getline(fs, buffer))
+	{
+		pos = 0;
+		while (pos != (int)std::string::npos)
+		{
+			pos = buffer.find(av[2]);
+			if (pos >= 0)
+			{
+				buffer.erase(pos, word_len);
+				buffer.insert(pos, av[3]);
+			}
+		}
+		outfile << buffer << std::endl;
+		buffer.clear();
+	}
+	outfile.close();
+	fs.close();
 }
 
-int main(int argc, char *argv[]) 
-{
-    // Vérifier le nombre d'arguments
-    if (argc != 4) 
-    {
-        std::cerr << "Usage: ./replace <filename> <s1> <s2>" << std::endl;
-        return 1;
-    }
-
-    // Récupérer les arguments
-    std::string filename = argv[1];
-    std::string s1 = argv[2];
-    std::string s2 = argv[3];
-
-    // Appeler la fonction de remplacement
-    if (!replaceInFile(filename, s1, s2))
-        return 1; // Retourner 1 en cas d'erreur
-
-    std::cout << "Replacement completed! Check " << filename << ".replace" << std::endl;
-    return 0;
-}
